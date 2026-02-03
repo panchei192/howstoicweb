@@ -15,6 +15,8 @@ export interface Database {
                     username: string | null
                     display_name: string | null
                     avatar_url: string | null
+                    avatar_path: string | null
+                    avatar_updated_at: string
                     xp: number
                     level: number
                     created_at: string
@@ -30,6 +32,8 @@ export interface Database {
                     username?: string | null
                     display_name?: string | null
                     avatar_url?: string | null
+                    avatar_path?: string | null
+                    avatar_updated_at?: string
                     xp?: number
                     level?: number
                     created_at?: string
@@ -45,6 +49,8 @@ export interface Database {
                     username?: string | null
                     display_name?: string | null
                     avatar_url?: string | null
+                    avatar_path?: string | null
+                    avatar_updated_at?: string
                     xp?: number
                     level?: number
                     created_at?: string

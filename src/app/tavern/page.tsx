@@ -8,6 +8,7 @@ import { Coins, Lock, Check } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { Navbar } from "@/components/layout/Navbar"
 
 export default function TavernPage() {
     const { oro, buyItem, inventory, equipFrame, equippedFrame, equipTheme, equippedTheme, storeItems, addOro } = useGamification()
@@ -25,6 +26,7 @@ export default function TavernPage() {
 
     return (
         <div className="min-h-screen bg-black relative text-white pt-24 pb-12">
+            <Navbar />
             {/* Background Image */}
             <div className="fixed inset-0 z-0">
                 <Image

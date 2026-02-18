@@ -75,18 +75,18 @@ export function Hero() {
                             </a>
                         </motion.div>
 
-                        <motion.div variants={item} className="pt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-muted-foreground max-w-3xl mx-auto border-t border-white/5 mt-12">
-                            <div className="flex flex-col items-center gap-2">
-                                <Download className="w-6 h-6 text-primary opacity-80" />
-                                <span className="font-serif tracking-wide">{t("hero.bullets.instant")}</span>
+                        <motion.div variants={item} className="pt-12 grid grid-cols-1 md:grid-cols-3 gap-12 text-muted-foreground max-w-5xl mx-auto border-t border-white/5 mt-16">
+                            <div className="flex flex-col items-center gap-4">
+                                <Download className="w-10 h-10 text-primary opacity-80" />
+                                <span className="font-serif tracking-wide text-lg">{t("hero.bullets.instant")}</span>
                             </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <InfinityIcon className="w-6 h-6 text-primary opacity-80" />
-                                <span className="font-serif tracking-wide">{t("hero.bullets.lifetime")}</span>
+                            <div className="flex flex-col items-center gap-4">
+                                <InfinityIcon className="w-10 h-10 text-primary opacity-80" />
+                                <span className="font-serif tracking-wide text-lg">{t("hero.bullets.lifetime")}</span>
                             </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <Sliders className="w-6 h-6 text-primary opacity-80" />
-                                <span className="font-serif tracking-wide">{t("hero.bullets.custom")}</span>
+                            <div className="flex flex-col items-center gap-4">
+                                <Sliders className="w-10 h-10 text-primary opacity-80" />
+                                <span className="font-serif tracking-wide text-lg">{t("hero.bullets.custom")}</span>
                             </div>
                         </motion.div>
                     </motion.div>

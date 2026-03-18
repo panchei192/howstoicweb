@@ -1,12 +1,15 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { useGamification, StoreItem } from "@/context/GamificationContext"
 import { motion } from "framer-motion"
-import { Shield, Trophy, Check, User } from "lucide-react"
+import { Shield, Trophy, Check, User, Settings, Bell, Lock, Mail, UserCircle, Eye, EyeOff, Save, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
+import { Navbar } from "@/components/layout/Navbar"
+import { useAuth } from "@/context/AuthContext"
+import { supabase } from "@/lib/supabase"
 
 export default function ProfilePage() {
     const {
@@ -21,6 +24,76 @@ export default function ProfilePage() {
         storeItems
     } = useGamification()
 
+    const { user } = useAuth()
+
+    const userEmail = user?.email ?? ""
+
+    // Account settings state
+    const [username, setUsername] = useState("")
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [newPassword, setNewPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [showCurrentPwd, setShowCurrentPwd] = useState(false)
+    const [showNewPwd, setShowNewPwd] = useState(false)
+    const [showConfirmPwd, setShowConfirmPwd] = useState(false)
+    const [notifOrders, setNotifOrders] = useState(true)
+    const [notifPromos, setNotifPromos] = useState(false)
+    const [notifXP, setNotifXP] = useState(true)
+    const [savedMsg, setSavedMsg] = useState<string | null>(null)
+    const [saveError, setSaveError] = useState<string | null>(null)
+    const [activeSection, setActiveSection] = useState<string | null>("personal")
+    const [loadingProfile, setLoadingProfile] = useState(true)
+
+    // Load display_name from users_profile table
+    useEffect(() => {
+        if (!user) return
+        const fetchProfile = async () => {
+            setLoadingProfile(true)
+            const { data, error } = await (supabase as any)
+                .from("users_profile")
+                .select("display_name")
+                .eq("id", user.id)
+                .single()
+            if (!error && data?.display_name) {
+                setUsername(data.display_name as string)
+            } else {
+                // Fallback to metadata or email prefix
+                setUsername(
+                    user.user_metadata?.full_name
+                    ?? user.user_metadata?.name
+                    ?? userEmail.split("@")[0]
+                    ?? "Stoic Warrior"
+                )
+            }
+            setLoadingProfile(false)
+        }
+        fetchProfile()
+    }, [user])
+
+    const handleSavePersonal = async () => {
+        setSaveError(null)
+        if (!user) return
+        const { error } = await (supabase as any)
+            .from("users_profile")
+            .update({ display_name: username })
+            .eq("id", user.id)
+        if (error) {
+            setSaveError("No se pudo guardar. Intentá de nuevo.")
+        } else {
+            setSavedMsg("personal")
+            setTimeout(() => setSavedMsg(null), 2500)
+        }
+    }
+
+    const handleSave = (section: string) => {
+        setSavedMsg(section)
+        setTimeout(() => setSavedMsg(null), 2500)
+    }
+
+    const toggleSection = (section: string) => {
+        setActiveSection(prev => prev === section ? null : section)
+    }
+
     // Filter store items to only show owned frames
     const ownedFrames = storeItems.filter(
         item => item.type === "frame" && inventory.includes(item.id)
@@ -33,6 +106,7 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-background pt-24 pb-12">
+            <Navbar />
             <div className="container mx-auto px-4 max-w-4xl">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -71,7 +145,7 @@ export default function ProfilePage() {
 
                         {/* User Info */}
                         <div className="text-center md:text-left space-y-2">
-                            <h1 className="text-4xl font-serif font-bold">Stoic Warrior</h1>
+                            <h1 className="text-4xl font-serif font-bold">{username}</h1>
                             <div className="flex flex-wrap justify-center md:justify-start gap-3">
                                 <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-sm">
                                     Level {level}
@@ -245,6 +319,230 @@ export default function ProfilePage() {
                             </div>
                         </div>
                     </div>
+                    {/* Account Settings */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-12 space-y-4"
+                    >
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                <Settings className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-serif font-bold">Configuración de Cuenta</h2>
+                                <p className="text-sm text-muted-foreground">Administrá y modificá tu información personal</p>
+                            </div>
+                        </div>
+
+                        {/* Personal Info */}
+                        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                            <button
+                                onClick={() => toggleSection("personal")}
+                                className="w-full flex items-center justify-between px-6 py-4 hover:bg-secondary/30 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <UserCircle className="w-5 h-5 text-primary" />
+                                    <span className="font-semibold">Información Personal</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${activeSection === "personal" ? "rotate-180" : ""}`} />
+                            </button>
+                            {activeSection === "personal" && (
+                                <div className="px-6 pb-6 space-y-4 border-t border-border pt-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                                                <UserCircle className="w-3.5 h-3.5" /> Nombre de usuario
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={username}
+                                                onChange={e => setUsername(e.target.value)}
+                                                className="w-full px-4 py-2.5 rounded-xl bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
+                                                placeholder="Tu nombre de usuario"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                                                <Mail className="w-3.5 h-3.5" /> Email
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="email"
+                                                    value={userEmail}
+                                                    readOnly
+                                                    className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-muted-foreground text-sm cursor-not-allowed select-none"
+                                                />
+                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
+                                                    Solo lectura
+                                                </span>
+                                            </div>
+                                            <p className="text-[11px] text-muted-foreground/70">El email se gestiona desde Supabase Auth</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                        {saveError && (
+                                            <p className="text-xs text-red-400">{saveError}</p>
+                                        )}
+                                        <button
+                                            onClick={handleSavePersonal}
+                                            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all active:scale-95"
+                                        >
+                                            <Save className="w-4 h-4" />
+                                            {savedMsg === "personal" ? "¡Guardado!" : "Guardar cambios"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Password */}
+                        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                            <button
+                                onClick={() => toggleSection("password")}
+                                className="w-full flex items-center justify-between px-6 py-4 hover:bg-secondary/30 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Lock className="w-5 h-5 text-primary" />
+                                    <span className="font-semibold">Contraseña</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${activeSection === "password" ? "rotate-180" : ""}`} />
+                            </button>
+                            {activeSection === "password" && (
+                                <div className="px-6 pb-6 space-y-4 border-t border-border pt-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-muted-foreground">Contraseña actual</label>
+                                        <div className="relative">
+                                            <input
+                                                type={showCurrentPwd ? "text" : "password"}
+                                                value={currentPassword}
+                                                onChange={e => setCurrentPassword(e.target.value)}
+                                                className="w-full px-4 py-2.5 pr-11 rounded-xl bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
+                                                placeholder="••••••••"
+                                            />
+                                            <button onClick={() => setShowCurrentPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                                                {showCurrentPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-sm font-medium text-muted-foreground">Nueva contraseña</label>
+                                            <div className="relative">
+                                                <input
+                                                    type={showNewPwd ? "text" : "password"}
+                                                    value={newPassword}
+                                                    onChange={e => setNewPassword(e.target.value)}
+                                                    className="w-full px-4 py-2.5 pr-11 rounded-xl bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
+                                                    placeholder="••••••••"
+                                                />
+                                                <button onClick={() => setShowNewPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                                                    {showNewPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-sm font-medium text-muted-foreground">Confirmar contraseña</label>
+                                            <div className="relative">
+                                                <input
+                                                    type={showConfirmPwd ? "text" : "password"}
+                                                    value={confirmPassword}
+                                                    onChange={e => setConfirmPassword(e.target.value)}
+                                                    className={`w-full px-4 py-2.5 pr-11 rounded-xl bg-secondary border text-foreground text-sm focus:outline-none focus:ring-2 transition-all ${confirmPassword && newPassword !== confirmPassword
+                                                        ? "border-red-500/50 focus:ring-red-500/30"
+                                                        : "border-border focus:ring-primary/40 focus:border-primary/50"
+                                                        }`}
+                                                    placeholder="••••••••"
+                                                />
+                                                <button onClick={() => setShowConfirmPwd(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                                                    {showConfirmPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                            {confirmPassword && newPassword !== confirmPassword && (
+                                                <p className="text-xs text-red-400">Las contraseñas no coinciden</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={() => handleSave("password")}
+                                            disabled={!currentPassword || !newPassword || newPassword !== confirmPassword}
+                                            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                                        >
+                                            <Save className="w-4 h-4" />
+                                            {savedMsg === "password" ? "¡Guardado!" : "Actualizar contraseña"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Notifications */}
+                        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                            <button
+                                onClick={() => toggleSection("notifications")}
+                                className="w-full flex items-center justify-between px-6 py-4 hover:bg-secondary/30 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Bell className="w-5 h-5 text-primary" />
+                                    <span className="font-semibold">Notificaciones</span>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${activeSection === "notifications" ? "rotate-180" : ""}`} />
+                            </button>
+                            {activeSection === "notifications" && (
+                                <div className="px-6 pb-6 space-y-3 border-t border-border pt-4">
+                                    {[
+                                        { label: "Pedidos y envíos", desc: "Actualizaciones sobre el estado de tus pedidos", value: notifOrders, set: setNotifOrders },
+                                        { label: "Promociones y ofertas", desc: "Descuentos exclusivos y novedades de la tienda", value: notifPromos, set: setNotifPromos },
+                                        { label: "XP y logros", desc: "Notificaciones cuando ganás experiencia o desbloqueás logros", value: notifXP, set: setNotifXP },
+                                    ].map(({ label, desc, value, set }) => (
+                                        <div key={label} className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
+                                            <div>
+                                                <p className="text-sm font-medium">{label}</p>
+                                                <p className="text-xs text-muted-foreground">{desc}</p>
+                                            </div>
+                                            <button
+                                                onClick={() => set((v: boolean) => !v)}
+                                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${value ? "bg-primary" : "bg-secondary border border-border"
+                                                    }`}
+                                            >
+                                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${value ? "translate-x-5" : "translate-x-0"
+                                                    }`} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <div className="flex justify-end pt-2">
+                                        <button
+                                            onClick={() => handleSave("notifications")}
+                                            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all active:scale-95"
+                                        >
+                                            <Save className="w-4 h-4" />
+                                            {savedMsg === "notifications" ? "¡Guardado!" : "Guardar preferencias"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Danger Zone */}
+                        <div className="rounded-2xl border border-red-500/20 bg-red-500/5 overflow-hidden">
+                            <div className="px-6 py-4 flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                    <span className="text-red-400 text-sm">⚠️</span>
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-red-400 text-sm">Zona de peligro</p>
+                                    <p className="text-xs text-muted-foreground">Estas acciones son irreversibles</p>
+                                </div>
+                                <button className="px-4 py-1.5 rounded-xl border border-red-500/30 text-red-400 text-xs font-semibold hover:bg-red-500/10 transition-colors">
+                                    Eliminar cuenta
+                                </button>
+                            </div>
+                        </div>
+
+                    </motion.div>
+
                 </motion.div>
             </div>
         </div>

@@ -21,6 +21,7 @@ export function Navbar() {
     const { items, toggleCart } = useCart()
     const { user, loading: authLoading } = useAuth()
     const { level, xp, equippedFrame, storeItems, oro } = useGamification()
+    const pathname = usePathname()
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
@@ -56,6 +57,11 @@ export function Navbar() {
     const scrollToSection = (e: React.MouseEvent, href: string) => {
         e.preventDefault()
         setIsMobileMenuOpen(false)
+        // If not on home page, redirect to home with hash
+        if (pathname !== "/") {
+            window.location.href = "/" + href
+            return
+        }
         const element = document.querySelector(href)
         if (element) {
             const yOffset = -80 // Offset for sticky header

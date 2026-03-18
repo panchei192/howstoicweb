@@ -18,7 +18,6 @@ export default async function Home() {
       <div className="flex flex-col gap-0">
         <Hero />
         <Products initialProducts={shopifyProducts} />
-        <Packs />
         <Community />
         <Library />
       </div>

@@ -82,7 +82,7 @@ export function ProductCard({ product, className, onPurchase }: ProductCardProps
                                 });
                             }
                         }}
-                        className="gap-2 bg-gradient-to-r from-[var(--gold)] to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-bold shadow-lg shadow-amber-900/20 border-none transition-all duration-300 hover:scale-105"
+                        className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold shadow-lg shadow-amber-900/20 border-none transition-all duration-300 hover:scale-105"
                     >
                         <span>{hasVariants ? "Select Option" : t("products.addToCart")}</span>
                         <ShoppingCart className="w-4 h-4" />

@@ -27,7 +27,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const buyUrl = product.onlineStoreUrl || "#"
 
     return (
-        <div className="min-h-screen bg-background pt-24 pb-12">
+        <div className="min-h-screen bg-background pt-16 md:pt-24 pb-12">
             <div className="container mx-auto px-4">
                 <Link
                     href="/#products"
@@ -37,9 +37,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     Back to Products
                 </Link>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-start">
                     {/* Image Section */}
-                    <div className="relative aspect-square bg-secondary/10 rounded-2xl overflow-hidden border border-border/50 shadow-lg">
+                    <div className="relative aspect-square bg-secondary/10 rounded-2xl overflow-hidden border border-border/50 shadow-lg w-full sm:max-w-md lg:max-w-none mx-auto">
                         {product.image ? (
                             <Image
                                 src={product.image}
@@ -56,9 +56,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     </div>
 
                     {/* Details Section */}
-                    <div className="flex flex-col space-y-8">
+                    <div className="flex flex-col space-y-6 lg:space-y-8">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-foreground">
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold tracking-tight text-foreground break-words">
                                 {product.name}
                             </h1>
                             <div className="mt-4 flex items-center gap-4">
@@ -73,7 +73,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             </div>
                         </div>
 
-                        <div className="prose prose-lg dark:prose-invert text-muted-foreground">
+                        <div className="prose prose-base md:prose-lg dark:prose-invert text-muted-foreground break-words">
                             <p>{product.description}</p>
                         </div>
 
@@ -91,11 +91,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
-                                    <ShieldCheck className="w-4 h-4 text-primary" />
+                                    <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                                     <span>Secure checkout via Shopify</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Check className="w-4 h-4 text-primary" />
+                                    <Check className="w-4 h-4 text-primary shrink-0" />
                                     <span>Instant digital delivery</span>
                                 </div>
                             </div>

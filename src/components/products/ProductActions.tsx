@@ -87,11 +87,11 @@ export function ProductActions({ product, variants }: ProductActionsProps) {
             {/* Trust Badges */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-primary" />
+                    <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                     <span>Secure checkout via Shopify</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-primary" />
+                    <Check className="w-4 h-4 text-primary shrink-0" />
                     <span>Instant digital delivery</span>
                 </div>
             </div>
